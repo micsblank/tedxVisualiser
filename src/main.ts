@@ -29,6 +29,7 @@ let o_letter:  p5.Image;
 let u_letter:  p5.Image;
 let p_letter:  p5.Image;
 let cycle: boolean = false;
+let startTime = 0;
 
 
 let performanceMode: boolean = false;
@@ -165,6 +166,13 @@ const sketch = (p: p5) => {
         topLevelShader.setUniform("performanceMode", performanceMode);
         topLevelShader.setUniform("modeStep", modeStep);
         topLevelShader.setUniform("gol", golGraphics);
+
+       
+        if (startTime > 0) {  // Only update the shader if 'A' has been pressed
+            let elapsedTime = (p.millis() - startTime) / 1000;  // Calculate elapsed time in seconds
+            topLevelShader.setUniform("time", elapsedTime);  // Pass the elapsed time to the shader
+        }
+        
 
         if(bgImages.length > 0 && performanceMode) {
 
@@ -455,6 +463,7 @@ const sketch = (p: p5) => {
 
         if(p.keyCode == 65) { // a - start audio input
             setupAudio(false);
+            startTime = p.millis(); 
 
             prerecord.play();
         }
@@ -613,6 +622,68 @@ function golStep(p: p5, amp: number) {
         p.pop();
     }
 }*/
+
+
+// @ts-ignore;
+function openFullscreen() {
+    document.documentElement.requestFullscreen();
+}
+
+function setupAudio(mic:boolean) {
+
+    if(!audioCtx)
+      audioCtx = new AudioContext();
+
+    // polyfill
+    // @ts-ignore
+    if (!navigator.getUserMedia)
+        // @ts-ignore
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+    // @ts-ignore
+    if (navigator.getUserMedia) {
+
+        // @ts-ignore
+      navigator.getUserMedia({ audio:true }, 
+            //@ts-ignore
+        function(stream:MediaStream) {
+            let source
+            if(mic)
+                source = audioCtx.createMediaStreamSource(stream);
+            else
+                source = audioCtx.createMediaElementSource(prerecord);
+
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.smoothingTimeConstant = 0;
+
+          analyserSmooth = audioCtx.createAnalyser();
+          analyserSmooth.fftSize = 2048;
+          analyserSmooth.smoothingTimeConstant = 0.8;
+
+          if(mic) {
+            const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 0.1;
+          source.connect(gainNode);
+          gainNode.connect(analyser);
+          gainNode.connect(analyserSmooth);
+          } else {
+          source.connect(analyser);
+          source.connect(analyserSmooth);
+          source.connect(audioCtx.destination);
+          }
+        },
+        function() {
+          alert('Error capturing audio.');
+        }
+      );
+
+    } else { alert('getUserMedia not supported in this browser.'); }
+}
+
+
+new p5(sketch);
+
 
 
 // @ts-ignore;
