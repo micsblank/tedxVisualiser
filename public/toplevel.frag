@@ -262,7 +262,7 @@ void main() {
         vec2(
             cnoise3d(vec3(uv.x, uv.y, amplitude * 10.0)),  // Use amplitude instead of time to drive the noise
             cnoise3d(vec3(uv.x, uv.y, amplitude * 10.0))
-        ) * (time/.05) * pow(amplitude, 1.9)  // Adjust scaling and power to exaggerate amplitude effect
+        ) * (time*.05) * pow(amplitude, 1.9)  // Adjust scaling and power to exaggerate amplitude effect
     ).a
 );
 
