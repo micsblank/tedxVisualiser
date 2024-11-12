@@ -97,7 +97,6 @@ const sketch = (p: p5) => {
     p.setup = () => {
         p.createCanvas(window.innerWidth, window.innerHeight+25, p.WEBGL);
         
-        window.addEventListener('fullscreenchange', resizeSketchCanvas);
 
         prerecord = document.getElementById("prerecord") as HTMLAudioElement;
 
@@ -633,11 +632,8 @@ function golStep(p: p5, amp: number) {
 
 // @ts-ignore;
 function openFullscreen() {
-    document.documentElement.requestFullscreen().then(() => {
-        // Resize the canvas after entering fullscreen
-        resizeSketchCanvas();
-    });
-}
+    document.documentElement.requestFullscreen();
+} 
 
 
 
