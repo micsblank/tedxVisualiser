@@ -96,7 +96,9 @@ const sketch = (p: p5) => {
 
     p.setup = () => {
         p.createCanvas(window.innerWidth, window.innerHeight+25, p.WEBGL);
-        console.log(window.outerWidth, window.outerHeight+25);
+        
+        window.addEventListener('fullscreenchange', resizeSketchCanvas);
+
         prerecord = document.getElementById("prerecord") as HTMLAudioElement;
 
         let r = 200
@@ -128,6 +130,11 @@ const sketch = (p: p5) => {
         textGraphics.image(ansoLogo, -p.width/2*.6 , -p.height/2*.3, p.width*.6, p.height*.3);
 
         lineGraphics = p.createGraphics(p.width, p.height, p.WEBGL);
+    }
+
+    // Add a function to resize the canvas
+    function resizeSketchCanvas() {
+        p.resizeCanvas(window.innerWidth, window.innerHeight + 25);
     }
 
     p.draw = () => {
@@ -167,7 +174,7 @@ const sketch = (p: p5) => {
         topLevelShader.setUniform("modeStep", modeStep);
         topLevelShader.setUniform("gol", golGraphics);
 
-       
+       //
         if (startTime > 0) {  // Only update the shader if 'A' has been pressed
             let elapsedTime = (p.millis() - startTime) / 1000;  // Calculate elapsed time in seconds
             topLevelShader.setUniform("time", elapsedTime);  // Pass the elapsed time to the shader
@@ -226,7 +233,7 @@ const sketch = (p: p5) => {
                 // lineGraphics.clear();
             // @ts-ignore
             // textGraphics.clear();
-                textGraphics.image(koupLogo, -p.width/2*.6 , -p.height/2*.3, p.width*.6, p.height*.3);
+                textGraphics.image(koupLogo, -p.height/2*1.2 , -p.height/2*.3, p.height*1.2, p.height*.3);
                 // textGraphics.image(k_letter, -p.width/2*.6 , -p.height/2*.3, p.width*.6/4, p.height*.3);
                 // textGraphics.image(o_letter, -p.width/2*.6 + p.width*.6/4, -p.height/2*.3, p.width*.6/4, p.height*.3);
                 // textGraphics.image(u_letter, -p.width/2*.6 +2*p.width*.6/4, -p.height/2*.3, p.width*.6/4, p.height*.3);
@@ -626,8 +633,13 @@ function golStep(p: p5, amp: number) {
 
 // @ts-ignore;
 function openFullscreen() {
-    document.documentElement.requestFullscreen();
+    document.documentElement.requestFullscreen().then(() => {
+        // Resize the canvas after entering fullscreen
+        resizeSketchCanvas();
+    });
 }
+
+
 
 function setupAudio(mic:boolean) {
 
